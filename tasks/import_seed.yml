@@ -10,7 +10,7 @@
 - name: Import seed data
   shell: mysql -h {{_mailsystem_db.host}}
           --user={{_mailsystem_db.user}} --password={{_mailsystem_db.password}}
-          {{mailsystem_db.db}} < {{mailsystem_db_demo_seed_remote_path}}
+          {{_mailsystem_db.db}} < {{mailsystem_db_demo_seed_remote_path}}
 
 - name: Remove seed sql
   file: state=absent
