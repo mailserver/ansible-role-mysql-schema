@@ -1,25 +1,34 @@
 ---
-# PARAMETERS:
-# schema_template: 
-# mysql_client_address:
-# db_description:
-#   host:
-#   port:
-#   user:
-#   pass:
-#   db:
-# mysql_admin_user
-# mysql_admin_pass
+# An abstraction for installing an SQL schema file into a MySQL database
+
+# Example:
+# - include: thisfile.yml
+#   vars:
+#     schema_template: 
+#     db_conn:
+#       host:
+#       port:
+#       user:
+#       password:
+#       db:
 
 - set_fact:
     remote_mail_database_schema_path: /root/ansible_mailserver_database_schema.sql
 
-- name: Template & transfer database schema '{{schema_template}}'
-  template: src={{schema_template}}
-            dest={{remote_mail_database_schema_path}}
+- block:
 
-- name: Install database schema
-  shell: mysql -h {{db_description.host}} --user={{db_description.user}} --password={{db_description.pass}} < {{remote_mail_database_schema_path}}
+    - name: Template & transfer database schema '{{schema_template}}'
+      template: src={{schema_template}}
+                dest={{remote_mail_database_schema_path}}
 
-- name: Remove schema file
-  file: state=absent path={{remote_mail_database_schema_path}}
+    - name: Install database schema
+      shell: mysql -h {{db_conn.host}}
+              --user={{db_conn.user}} --password={{db_conn.password}}
+                < {{remote_mail_database_schema_path}}
+  rescue:
+    # this causes ansible < 2.2.0 to crash, which serves the purpose but 'always' is not run
+    # see https://github.com/ansible/ansible/issues/15963
+    - fail: msg="fail playbook"
+  always:
+    - name: Remove schema file
+      file: state=absent path={{remote_mail_database_schema_path}}

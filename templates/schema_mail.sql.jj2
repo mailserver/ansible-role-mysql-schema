@@ -1,5 +1,5 @@
 
-USE `{{mailsystem_db.db}}`;
+USE `{{_mailsystem_db.db}}`;
 
 CREATE TABLE `domain`
 (

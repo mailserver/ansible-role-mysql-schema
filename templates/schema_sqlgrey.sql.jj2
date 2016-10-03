@@ -1,16 +1,16 @@
-USE `{{sqlgrey_db.db}}`;
+USE `{{_sqlgrey_db.db}}`;
 
 CREATE VIEW `optin_domain` AS
 SELECT `d`.`domain` as `domain`
-FROM `mail`.`domain` AS `d`
+FROM `{{_mailsystem_db.db}}`.`domain` `d`
 WHERE `d`.`greylisting` = 1;
 
 CREATE VIEW `optin_email` AS
 SELECT `a`.`alias` as `email`
-FROM `mail`.`alias` as `a`
+FROM `{{_mailsystem_db.db}}`.`alias` `a`
 WHERE `a`.`greylisting` = 1;
 
 CREATE VIEW `optout_email` AS
 SELECT `a`.`alias` as `email`
-FROM `mail`.`alias` as `a`
+FROM `{{_mailsystem_db.db}}`.`alias` `a`
 WHERE `a`.`greylisting` = 0;

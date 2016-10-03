@@ -1,11 +1,14 @@
 ---
 
+dbhost: localhost
+dbport: 3306
+
 mailsystem_db_present: True
-mailsystem_db:
-  host:
-  port:
+mailsystem_default_db:
+  host: "{{dbhost}}"
+  port: "{{dbport}}"
   user:
-  pass:
+  password:
   db:
 # Demo Seed stuff for mailsystem_db
 mailsystem_db_demo_seed: False
@@ -13,11 +16,11 @@ mailsystem_db_demo_seed_postmaster_address:
 mailsystem_db_demo_seed_virtual_domain:
 
 sqlgrey_db_present: True
-sqlgrey_db:
-  host:
-  port:
+sqlgrey_default_db:
+  host: "{{dbhost}}"
+  port: "{{dbport}}"
   user:
-  pass:
+  password:
   db:
 
 
