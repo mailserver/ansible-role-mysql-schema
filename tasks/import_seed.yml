@@ -5,8 +5,6 @@
 - name: Generate seed SQL statements
   template: src=mailsystem_db_demo_seed.sql.jj2
             dest={{mailsystem_db_demo_seed_remote_path}}
-            owner=root
-            group=root
             mode="u=rw,g=,o="
 
 - name: Import seed data
