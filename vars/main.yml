@@ -3,6 +3,8 @@
 dbhost: localhost
 dbport: 3306
 
+fail_when_not_empty: False 
+
 mailsystem_db_present: True
 mailsystem_default_db:
   host: "{{dbhost}}"

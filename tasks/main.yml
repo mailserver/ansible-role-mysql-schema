@@ -28,6 +28,7 @@
             -u {{_mailsystem_db.user}} --password={{_mailsystem_db.password}}
             -h {{_mailsystem_db.host}}
             -e "SELECT count(*) from information_schema.tables WHERE table_schema = '{{_mailsystem_db.db}}';" 
+    changed_when: false
     register: check_mysql_db_mail
   - include: setup_mysql_db_schema.yml
     vars:
@@ -35,7 +36,7 @@
       db_conn: "{{_mailsystem_db}}"
     when: (mailsystem_db_present == True) and (check_mysql_db_mail.stdout == "0")
   - fail: msg="Database {{_mailsystem_db.db}} on {{_mailsystem_db.host}} is not empty"
-    when: (mailsystem_db_present == True) and (check_mysql_db_mail.stdout != "0") 
+    when: fail_when_not_empty and (mailsystem_db_present == True) and (check_mysql_db_mail.stdout != "0") 
 
 # SQLGREY DB
 
@@ -44,6 +45,7 @@
             -u {{_sqlgrey_db.user}} --password={{_sqlgrey_db.password}}
             -h {{_sqlgrey_db.host}}
             -e "SELECT count(*) from information_schema.tables WHERE table_schema = '{{_sqlgrey_db.db}}';" 
+    changed_when: false
     register: check_mysql_db_sqlgrey
   - include: setup_mysql_db_schema.yml
     vars:
@@ -51,13 +53,14 @@
       db_conn: "{{_sqlgrey_db}}"
     when: (sqlgrey_db_present == True) and (check_mysql_db_sqlgrey.stdout == "0")
   - fail: msg="Database {{_sqlgrey_db.db}} on {{_sqlgrey_db.host}} is not empty"
-    when: (sqlgrey_db_present == True) and (check_mysql_db_sqlgrey.stdout != "0")
+    when: fail_when_not_empty and (sqlgrey_db_present == True) and (check_mysql_db_sqlgrey.stdout != "0")
 
 # SEED if wanted
 
   - name: determine how many accounts exist in database
     when: mailsystem_db_demo_seed == True
     shell: "mysql -u{{_mailsystem_db.user}} -p{{_mailsystem_db.password}} -h{{_mailsystem_db.host}} {{_mailsystem_db.db}} --skip-column-names -s -e 'SELECT COUNT(*) FROM account;'"
+    changed_when: false
     register: check_mysql_account_count
   
   - assert:
@@ -69,5 +72,5 @@
   - include: import_seed.yml
     when: (mailsystem_db_demo_seed == True) and (check_mysql_account_count.stdout == "0")
   - fail: msg="Table `account` in DB {{_mailsystem_db.host}} is not empty"
-    when: (mailsystem_db_demo_seed == True) and (check_mysql_account_count.stdout != "0")
+    when: fail_when_not_empty and (mailsystem_db_demo_seed == True) and (check_mysql_account_count.stdout != "0")
   
