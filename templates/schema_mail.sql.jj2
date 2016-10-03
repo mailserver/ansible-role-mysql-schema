@@ -1,0 +1,68 @@
+
+USE `{{mailsystem_db.db}}`;
+
+CREATE TABLE `domain`
+(
+  `domain` VARCHAR(255) PRIMARY KEY,
+  `dkim_public_key` TEXT,
+  `dkim_private_key` TEXT,
+  `dkim_selector` VARCHAR(255) DEFAULT NULL,
+  `greylisting` tinyint(1) DEFAULT NULL
+);
+
+CREATE TABLE `alias`
+(
+  `alias` VARCHAR(255),
+  `mail` VARCHAR(255),
+  `greylisting` tinyint(1) DEFAULT NULL,
+  CONSTRAINT `pk` PRIMARY KEY (`alias`,`mail`)
+);
+
+CREATE TABLE `account`
+(
+  `mail` VARCHAR(255) PRIMARY KEY,
+  `home` VARCHAR(255),
+  `passwd` VARCHAR(255),
+  `home_quota_storage` varchar(255) DEFAULT NULL
+);
+
+CREATE VIEW `virtual_alias_maps` AS
+SELECT 
+  `alias`, 
+  GROUP_CONCAT(`mail` SEPARATOR ',') AS `destination`
+FROM `alias`
+GROUP BY `alias`;
+
+CREATE VIEW `virtual_mailbox_maps` AS
+SELECT 
+  `mail` 
+FROM `account`;
+
+CREATE VIEW `alias_user_maps` AS
+SELECT
+  `u`.`mail` AS `alias`,
+  `u`.`mail` AS `user`
+FROM `account` `u`
+UNION ALL
+SELECT
+  `a`.`alias` AS `alias`,
+  `a`.`mail` AS `user`
+FROM `alias` `a`
+JOIN `account` `u`
+ON `a`.`mail` = `u`.`mail`;
+
+CREATE VIEW `alias_users_maps` AS
+SELECT 
+  `alias`,
+  GROUP_CONCAT(`user` SEPARATOR ',') as `users`
+FROM `alias_user_maps`
+GROUP BY `alias`;
+
+CREATE VIEW `opendkim` AS
+SELECT * FROM `domain`
+WHERE 
+  (`dkim_private_key` != '' AND `dkim_private_key` IS NOT NULL)
+  AND
+  (`dkim_selector` != '' AND `dkim_selector` IS NOT NULL);
+
+

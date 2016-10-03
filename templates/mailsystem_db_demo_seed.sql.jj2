@@ -1,0 +1,24 @@
+
+# $user@domain has password '$user'
+INSERT INTO `account` (`mail`, `home`, `passwd`)
+VALUES
+	('demo1@{{ mailsystem_db_demo_seed_virtual_domain }}', 'demo1', '{SHA512-CRYPT}$6$Zko6PTbiCnOSyUNi$sHZYVPjpBVZiT3Ak6RlobQO5A21JEoSPd5t7v901JI/R/M3ngRJkkCat37CmvrbYgYZrxk0sDuIIrbFxSf5T41'),
+	('demo2@{{ mailsystem_db_demo_seed_virtual_domain }}', 'demo2', '{SHA512-CRYPT}$6$OIVmSlFo.j5GZHju$QbD1buoS2zQ3UGF/TGOAGe26.Xx3166fY4jym1BOi7rAc6MEk7E8iN8QO9sufBB0dHNyVxKjuMwzyVfg3JDSy1'),
+	('demo3@{{ mailsystem_db_demo_seed_virtual_domain }}', 'demo3', '{SHA512-CRYPT}$6$urGQMpmyzrS4qgxq$JxUvNRXeJ5mLtXnGflh5SZ6l8oeWCRxLddGJiklBGRdqyhx8FToLBsVHlaPrQJ9JPpFDdT3wtCyuZuaM3DxFK1')
+;
+
+
+INSERT INTO `alias` (`alias`, `mail`)
+VALUES
+	('group0@{{ mailsystem_db_demo_seed_virtual_domain }}', 'demo2@{{ mailsystem_db_demo_seed_virtual_domain }}'),
+	('group1@{{ mailsystem_db_demo_seed_virtual_domain }}', 'demo1@{{ mailsystem_db_demo_seed_virtual_domain }}'),
+	('group1@{{ mailsystem_db_demo_seed_virtual_domain }}', 'demo3@{{ mailsystem_db_demo_seed_virtual_domain }}'),
+	('postmaster@{{ mailsystem_db_demo_seed_virtual_domain }}', '{{ mailsystem_db_demo_seed_postmaster_address }}')
+;
+
+
+INSERT INTO `domain` (`domain`)
+VALUES
+	('{{ mailsystem_db_demo_seed_virtual_domain }}')
+;
+

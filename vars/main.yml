@@ -1,0 +1,23 @@
+---
+
+mailsystem_db_present: True
+mailsystem_db:
+  host:
+  port:
+  user:
+  pass:
+  db:
+# Demo Seed stuff for mailsystem_db
+mailsystem_db_demo_seed: False
+mailsystem_db_demo_seed_postmaster_address:
+mailsystem_db_demo_seed_virtual_domain:
+
+sqlgrey_db_present: True
+sqlgrey_db:
+  host:
+  port:
+  user:
+  pass:
+  db:
+
+

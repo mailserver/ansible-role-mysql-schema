@@ -1,0 +1,25 @@
+---
+# PARAMETERS:
+# schema_template: 
+# mysql_client_address:
+# db_description:
+#   host:
+#   port:
+#   user:
+#   pass:
+#   db:
+# mysql_admin_user
+# mysql_admin_pass
+
+- set_fact:
+    remote_mail_database_schema_path: /root/ansible_mailserver_database_schema.sql
+
+- name: Template & transfer database schema '{{schema_template}}'
+  template: src={{schema_template}}
+            dest={{remote_mail_database_schema_path}}
+
+- name: Install database schema
+  shell: mysql -h {{db_description.host}} --user={{db_description.user}} --password={{db_description.pass}} < {{remote_mail_database_schema_path}}
+
+- name: Remove schema file
+  file: state=absent path={{remote_mail_database_schema_path}}

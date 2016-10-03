@@ -1,0 +1,17 @@
+---
+- set_fact: 
+    mailsystem_db_demo_seed_remote_path: /root/ansible_mailserver_demo_seed.sql
+
+- name: Generate seed SQL statements
+  template: src=mailsystem_db_demo_seed.sql.jj2
+            dest={{mailsystem_db_demo_seed_remote_path}}
+            owner=root
+            group=root
+            mode="u=rw,g=,o="
+
+- name: Import seed data
+  shell: mysql -h {{mailsystem_db.host}} --user={{mailsystem_db.user}} --password={{mailsystem_db.pass}} {{mailsystem_db.db}} < {{mailsystem_db_demo_seed_remote_path}}
+
+- name: Remove seed sql
+  file: state=absent
+        path={{mailsystem_db_demo_seed_remote_path}}

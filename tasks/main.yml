@@ -1,0 +1,51 @@
+---
+
+  - name: Install tools
+    apt: name={{item}} state=present
+    with_items:
+      - python-mysqldb
+      - mysql-client
+
+# Mail DB
+  - name: check if mail database is empty
+    shell: mysql --column-names=0 --batch -u {{mailsystem_db.user}} --password={{mailsystem_db.pass}} -h {{mailsystem_db.host}} \
+            -e "SELECT count(*) from information_schema.tables WHERE table_schema = '{{mailsystem_db.db}}';" 
+    register: check_mysql_db_mail
+  - include: setup_mysql_db_schema.yml
+    when: (mailsystem_db_present == True) and (check_mysql_db_mail.stdout == "0")
+    schema_template: schema_mail.sql.jj2
+    db_description: "{{mailsystem_db}}"
+  - fail: msg="Database {{mailsystem_db.db}} on {{mailsystem_db.host}} is not empty"
+    when: (mailsystem_db_present == True) and (check_mysql_db_mail.stdout != 0) 
+
+# SQLGREY DB
+
+  - name: check if sqlgrey database exists
+    shell: mysql --column-names=0 --batch -u {{sqlgrey_db.user}} --password={{sqlgrey_db.pass}} -h {{sqlgrey_db.host}} \
+            -e "SELECT count(*) from information_schema.tables WHERE table_schema = '{{sqlgrey_db.db}}';" 
+    register: check_mysql_db_sqlgrey
+  - include: setup_mysql_db_schema.yml
+    schema_template: schema_sqlgrey.sql.jj2
+    db_description: "{{sqlgrey_db}}"
+    when: (sqlgrey_db_present == True) and (check_mysql_db_sqlgrey.stdout == "0")
+  - fail: msg="Database {{sqlgrey_db.db}} on {{sqlgrey_db.host}} is not empty"
+    when: (sqlgrey_db_present == True) and (check_mysql_db_sqlgrey.stdout != 0)
+
+# SEED if wanted
+
+  - name: determine how many accounts exist in database
+    when: mailsystem_db_demo_seed == True
+    shell: "mysql -u{{mailsystem_db.user}} -p{{mailsystem_db.pass}} -h{{mailsystem_db.host}} {{mailsystem_db.db}} --skip-column-names -s -e 'SELECT COUNT(*) FROM account;'"
+    register: check_mysql_account_count
+  
+  - assert:
+      that:
+        - mailsystem_db is defined
+        - mailsystem_db_demo_seed_postmaster_address is defined
+        - mailsystem_db_demo_seed_virtual_domain is defined
+  
+  - include: import_seed.yml
+    when: (mailsystem_db_demo_seed == True) and (check_mysql_account_count.stdout == "0")
+  - fail: msg="Table `account` in DB {{mailsystem_db.host}} is not empty"
+    when: (mailsystem_db_demo_seed == True) and (check_mysql_account_count.stdout != "0")
+  
